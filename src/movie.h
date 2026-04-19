@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 
 class Movie {
 private:
@@ -23,5 +24,9 @@ public:
     int         getRatingCount()     const;  // 추가
 
     void addRating(double r);               // 추가
-    void display()               const;
+    void display() const; 
+
+    bool operator==(const std::string& targetTitle) const;
+    bool operator<(const Movie& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const Movie& m); 
 };

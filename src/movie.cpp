@@ -1,4 +1,4 @@
-#include "Movie.h"
+#include "movie.h"
 #include <iostream>
 
 // 기본 생성자
@@ -36,4 +36,17 @@ void Movie::display() const {           // 중복 제거 — 하나만 유지
               << "  평점: " << getAverageRating()
               << " (" << ratingCount << "건)"
               << std::endl;
+}
+
+bool Movie::operator==(const std::string& targetTitle) const {
+    return this->title == targetTitle;
+}
+
+bool Movie::operator<(const Movie& other) const {
+    return this->getAverageRating() < other.getAverageRating();
+}
+
+std::ostream& operator<<(std::ostream& os, const Movie& m) {
+    os << "[" << m.id << "] " << m.title << " (" << m.releaseYear << ", " << m.genre << ") - 평점: " << m.getAverageRating();
+    return os;
 }
