@@ -35,3 +35,5 @@ clean:
 
 run: $(TARGET)
 	./$(TARGET)
+
+CXXFLAGS = -std=c++17 -Wall -g -I../include
