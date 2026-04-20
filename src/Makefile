@@ -1,6 +1,6 @@
 CXX      = g++
 CXXFLAGS = -std=c++17 -Wall -g -I../include
-TARGET   = movie_app
+TARGET   = movie_recommender
 
 OBJS     = main.o movie.o movie_manager.o user.o user_manager.o rating.o rating_manager.o
 
