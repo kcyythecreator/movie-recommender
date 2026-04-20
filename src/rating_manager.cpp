@@ -1,4 +1,4 @@
-#include "rating_manager.h"
+#include "../include/rating_manager.h" 
 #include <iostream>
 
 void RatingManager::addRating(const Rating& r) {

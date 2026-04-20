@@ -1,4 +1,4 @@
-#include "user_manager.h"
+#include "../include/user_manager.h"
 #include <iostream>
 
 void UserManager::addUser(const User& u) {
@@ -13,6 +13,6 @@ void UserManager::displayAllUsers() const {
     }
     std::cout << "=== 사용자 목록 ===\n";
     for (const auto& u : users) {
-        std::cout << "[" << u.getId() << "] " << u.getName() << "\n";
+        std::cout << "[" << u.getId() << "] " << u.getName() << " (" << u.getEmail() << ")\n";
     }
 }
