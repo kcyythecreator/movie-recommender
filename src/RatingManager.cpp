@@ -55,7 +55,7 @@ void RatingManager::loadFromFile(const std::string& filename) {
         int movieId = std::stoi(token);
 
         std::getline(ss, token, ',');
-        int score = std::stoi(token);
+        double score = std::stod(token);
 
         ratings.push_back(Rating(userId, movieId, score));
     }

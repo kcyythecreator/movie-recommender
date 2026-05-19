@@ -45,9 +45,12 @@ int main() {
     userMgr.loadFromFile("data/users.csv");
     ratingMgr.loadFromFile("data/ratings.csv");
 
-    movieMgr.addMovie(Movie(1, "Inception", "Sci-Fi", 2010));
-    movieMgr.addMovie(Movie(2, "Parasite", "Thriller", 2019));
-    userMgr.addUser(User(20253108, "최윤영", "choi@ssu.ac.kr"));
+    for (int uId : userMgr.getAllUserIds()) {
+        vector<Rating> userRatings = ratingMgr.findByUser(uId);
+        for (const auto& r : userRatings) {
+            movieMgr.updateMovieRating(r.getMovieId(), r.getScore());
+        }
+    }
 
     Recommender recommender(movieMgr, ratingMgr, userMgr);
 
@@ -78,7 +81,12 @@ int main() {
                 break;
             }
             case 3: movieMgr.displayAll(); break;
-            case 4: movieMgr.sortByRating(); break;
+            
+            case 4: 
+                movieMgr.sortByRating(); 
+                movieMgr.displayAll(); 
+                break;
+
             case 5: {
                 int id; string name, email;
                 cout << "사용자 학번: "; cin >> id;
@@ -112,6 +120,8 @@ int main() {
                     for (const auto& r : results) {
                         cout << "추천 영화 ID: " << r.first << " | 매칭 점수: " << r.second << endl;
                     }
+                } else {
+                    cout << "추천할 만한 영화가 없습니다." << endl;
                 }
                 break;
             }

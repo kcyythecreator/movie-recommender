@@ -1,16 +1,18 @@
 #pragma once
 #include <vector>
-#include <utility>
+#include <utility> 
 #include "MovieManager.h"
 #include "RatingManager.h"
 #include "UserManager.h"
 #include "Rating.h"
 
-class Recommender {
+class Recommender { 
+        
 private:
     MovieManager& movieManager;
     RatingManager& ratingManager;
     UserManager& userManager;
+
 
 public:
     Recommender(MovieManager& mm, RatingManager& rm, UserManager& um);
