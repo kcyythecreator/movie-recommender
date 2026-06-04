@@ -43,6 +43,16 @@ void MovieManager::updateMovieRating(int movieId, double score) {
     std::cout << "해당 ID의 영화를 찾을 수 없습니다." << std::endl;
 }
 
+// M4 확장 기능 지원용 구현
+std::string MovieManager::getGenreById(int movieId) const {
+    for (const auto& m : movies) {
+        if (m.getId() == movieId) {
+            return m.getGenre();
+        }
+    }
+    return "";
+}
+
 void MovieManager::loadFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {

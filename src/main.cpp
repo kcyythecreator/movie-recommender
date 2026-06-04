@@ -29,7 +29,7 @@ void showMenu() {
     cout << "  8. 영화별 평점 보기\n\n";
 
     cout << "[ 추천 ]\n";
-    cout << "  9. 맞춤 영화 추천 받기\n\n";
+    cout << "  9. 맞춤 영화 추천 받기 (장르 필터 지원)\n\n";
     
     cout << "  0. 종료\n\n";
     
@@ -45,13 +45,6 @@ int main() {
     userMgr.loadFromFile("data/users.csv");
     ratingMgr.loadFromFile("data/ratings.csv");
 
-    for (int uId : userMgr.getAllUserIds()) {
-        vector<Rating> userRatings = ratingMgr.findByUser(uId);
-        for (const auto& r : userRatings) {
-            movieMgr.updateMovieRating(r.getMovieId(), r.getScore());
-        }
-    }
-
     Recommender recommender(movieMgr, ratingMgr, userMgr);
 
     int choice;
@@ -59,19 +52,25 @@ int main() {
         showMenu();
         if (!(cin >> choice)) {
             cin.clear();
-            cin.ignore(1000, '\n');
+            cin.ignore(256, '\n');
+            cout << "숫자를 입력해주세요.\n";
             continue;
         }
-        if (choice == 0) break;
+
+        if (choice == 0) {
+            cout << "프로그램을 종료합니다.\n";
+            break;
+        }
 
         switch (choice) {
             case 1: {
-                int id, year; string title, genre;
-                cout << "영화 ID: "; cin >> id;
+                int id, year; double rating; string title, genre;
+                cout << "ID: "; cin >> id;
                 cout << "제목: "; cin.ignore(); getline(cin, title);
                 cout << "장르: "; getline(cin, genre);
-                cout << "연도: "; cin >> year;
-                movieMgr.addMovie(Movie(id, title, genre, year));
+                cout << "출시연도: "; cin >> year;
+                cout << "평점: "; cin >> rating;
+                movieMgr.addMovie(Movie(id, title, genre, year, rating));
                 break;
             }
             case 2: {
@@ -81,17 +80,12 @@ int main() {
                 break;
             }
             case 3: movieMgr.displayAll(); break;
-            
-            case 4: 
-                movieMgr.sortByRating(); 
-                movieMgr.displayAll(); 
-                break;
-
+            case 4: movieMgr.sortByRating(); break;
             case 5: {
                 int id; string name, email;
-                cout << "사용자 학번: "; cin >> id;
-                cout << "이름: "; cin >> name;
-                cout << "이메일: "; cin >> email;
+                cout << "학번: "; cin >> id;
+                cout << "이름: "; cin.ignore(); getline(cin, name);
+                cout << "이메일: "; getline(cin, email);
                 userMgr.addUser(User(id, name, email));
                 break;
             }
@@ -114,14 +108,24 @@ int main() {
             case 9: {
                 int targetId;
                 cout << "추천받을 사용자 학번 입력: "; cin >> targetId;
-                vector<pair<int, int>> results = recommender.recommend(targetId, 5, 3);
+                
+                // 버퍼 비우기 (cin과 getline 섞임 방지)
+                cin.ignore(256, '\n');
+                
+                cout << "원하는 장르가 있습니까? (없으면 그냥 엔터, 있으면 입력 ex: Action): ";
+                string genreInput;
+                getline(cin, genreInput);
+
+                // M4 확장 기능 적용: 입력한 장르 필터를 함께 넘겨줌 (비어있으면 전체 검색)
+                vector<pair<int, int>> results = recommender.recommend(targetId, 5, 3, genreInput);
+                
                 if (!results.empty()) {
-                    cout << "\n=== 추천 결과 상위 3개 ===" << endl;
+                    cout << "\n=== 추천 결과 상위 " << results.size() << "개 ===" << endl;
                     for (const auto& r : results) {
                         cout << "추천 영화 ID: " << r.first << " | 매칭 점수: " << r.second << endl;
                     }
                 } else {
-                    cout << "추천할 만한 영화가 없습니다." << endl;
+                    cout << "조건에 맞는 추천 영화가 없습니다." << endl;
                 }
                 break;
             }

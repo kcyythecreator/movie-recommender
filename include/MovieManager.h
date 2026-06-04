@@ -14,6 +14,9 @@ public:
     void displayAll() const;                 
     void sortByRating();      
     void updateMovieRating(int movieId, double score);
+    
+    // M4 확장 기능 - ID로 장르 검색
+    std::string getGenreById(int movieId) const; 
 
     void loadFromFile(const std::string& filename) override;
     void saveToFile(const std::string& filename) const override;

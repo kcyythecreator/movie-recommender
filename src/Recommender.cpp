@@ -7,6 +7,7 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include <iterator>
 
 class Timer {
     std::chrono::high_resolution_clock::time_point start;
@@ -18,7 +19,7 @@ public:
     ~Timer() {
         auto end = std::chrono::high_resolution_clock::now();
         auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        std::cout << "[" << label << "] " << us.count() << " us\n";
+        std::cout << "[" << label << "] 소요 시간: " << us.count() << " us\n";
     }
 };
 
@@ -44,7 +45,8 @@ int Recommender::Similaritycalculate(const std::vector<Rating>& ratingsA, const 
     return (commonCount * SimilarityCalculator::WEIGHT) - scoreDiffSum;
 }
 
-std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K, int N) {
+std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K, int N, const std::string& genreFilter) {
+    // M4 성능 측정용 RAII 타이머 
     Timer t("recommend");
 
     std::vector<std::pair<int, int>> recommendations;
@@ -68,13 +70,11 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
         std::vector<Rating> otherRatings = ratingManager.findByUser(otherId);
         int sim = SimilarityCalculator::calculate(myRatings, otherRatings);
         
-        // 공통 영화가 없어 예외 값(-100)이 반환된 유저는 유사도 목록에서 제외
         if (sim != SimilarityCalculator::NO_COMMON_MOVIE) {
             similarities.push_back({otherId, sim}); 
         }
     }
 
-    // 취향이 가장 비슷한 상위 유저를 뽑기 위해 유사도(second)를 기준으로 내림차순(>) 정렬
     std::sort(similarities.begin(), similarities.end(),
         [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
             return a.second > b.second; 
@@ -92,7 +92,6 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
         std::vector<Rating> simUserRatings = ratingManager.findByUser(similarUserId);
 
          for (const auto& r : simUserRatings) { 
-            // 타겟 유저가 아직 보지 않은 영화(set에 없는 영화)만 골라서 추천 점수 누적
             if (myMovieIds.find(r.getMovieId()) == myMovieIds.end()) {
                 movieScores[r.getMovieId()] += r.getScore();
             }
@@ -100,20 +99,30 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
     }
 
     std::vector<std::pair<int, int>> sortedScores(movieScores.begin(), movieScores.end());
-    
-    // 점수가 누적된 추천 후보 영화들 중 상위 N개를 뽑기 위해 내림차순(>) 정렬
     std::sort(sortedScores.begin(), sortedScores.end(),
         [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
             return a.second > b.second;
         });
         
-    int limitN = std::min(N, (int)sortedScores.size());
+    // M4 확장 기능: 장르 필터 적용 
+    std::vector<std::pair<int, int>> filteredScores;
+    if (genreFilter.empty()) {
+        filteredScores = sortedScores; // 필터 없으면 그대로 사용
+    } else {
+        std::copy_if(sortedScores.begin(), sortedScores.end(), std::back_inserter(filteredScores),
+            [&](const std::pair<int, int>& p) {
+                // 영화 ID를 이용해 장르를 가져와서 비교
+                return movieManager.getGenreById(p.first) == genreFilter;
+            });
+    }
+
+    int limitN = std::min(N, (int)filteredScores.size());
     if (limitN == 0) {
         return recommendations; 
     }
 
     for (int i = 0; i < limitN; ++i) { 
-        recommendations.push_back(sortedScores[i]);
+        recommendations.push_back(filteredScores[i]);
     }
 
     return recommendations; 
