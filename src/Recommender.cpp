@@ -39,9 +39,9 @@ int Recommender::Similaritycalculate(const std::vector<Rating>& ratingsA, const 
     }
 
     if (commonCount == 0) {
-        return -100;
+        return SimilarityCalculator::NO_COMMON_MOVIE;
     }
-    return (commonCount * 10) - scoreDiffSum;
+    return (commonCount * SimilarityCalculator::WEIGHT) - scoreDiffSum;
 }
 
 std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K, int N) {
@@ -67,11 +67,14 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
 
         std::vector<Rating> otherRatings = ratingManager.findByUser(otherId);
         int sim = SimilarityCalculator::calculate(myRatings, otherRatings);
-        if (sim != -100) {
+        
+        // 공통 영화가 없어 예외 값(-100)이 반환된 유저는 유사도 목록에서 제외
+        if (sim != SimilarityCalculator::NO_COMMON_MOVIE) {
             similarities.push_back({otherId, sim}); 
         }
     }
 
+    // 취향이 가장 비슷한 상위 유저를 뽑기 위해 유사도(second)를 기준으로 내림차순(>) 정렬
     std::sort(similarities.begin(), similarities.end(),
         [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
             return a.second > b.second; 
@@ -89,6 +92,7 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
         std::vector<Rating> simUserRatings = ratingManager.findByUser(similarUserId);
 
          for (const auto& r : simUserRatings) { 
+            // 타겟 유저가 아직 보지 않은 영화(set에 없는 영화)만 골라서 추천 점수 누적
             if (myMovieIds.find(r.getMovieId()) == myMovieIds.end()) {
                 movieScores[r.getMovieId()] += r.getScore();
             }
@@ -96,6 +100,8 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
     }
 
     std::vector<std::pair<int, int>> sortedScores(movieScores.begin(), movieScores.end());
+    
+    // 점수가 누적된 추천 후보 영화들 중 상위 N개를 뽑기 위해 내림차순(>) 정렬
     std::sort(sortedScores.begin(), sortedScores.end(),
         [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
             return a.second > b.second;

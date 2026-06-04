@@ -1,4 +1,4 @@
-#include "../include/SimilarityCalculator.h"
+#include "SimilarityCalculator.h"
 #include <cstdlib> 
 
 int SimilarityCalculator::calculate(
@@ -17,9 +17,11 @@ int SimilarityCalculator::calculate(
         }
     }
 
+    // 공통으로 평가한 영화가 아예 없는 경우, 취향 비교가 무의미하므로 예외 상수 반환
     if (commonCount == 0) {
-        return -100;
+        return NO_COMMON_MOVIE;
     }
 
-    return (commonCount * 10) - scoreDiffSum;
+    // 공통 영화가 많을수록 높은 기본 점수(가중치)를 주고, 평점 차이가 클수록 감점하여 유사도 도출
+    return (commonCount * WEIGHT) - scoreDiffSum;
 }
