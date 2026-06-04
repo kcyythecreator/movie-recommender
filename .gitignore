@@ -1,0 +1,17 @@
+# - 컴파일 산출물
+*.o
+*.a
+*.out
+obj/
+
+# - 실행 파일 (Makefile target)
+main
+app
+movie_app
+
+# - IDE/에디터 설정
+.vscode/
+
+# - OS 파일
+.DS_Store
+Thumbs.db

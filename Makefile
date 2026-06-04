@@ -5,8 +5,15 @@ SRCDIR = src
 INCDIR = include
 OBJDIR = obj
 
-SOURCES = $(wildcard $(SRCDIR)/*.cpp)
-OBJECTS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
+OBJECTS = $(OBJDIR)/main.o \
+          $(OBJDIR)/Movie.o \
+          $(OBJDIR)/MovieManager.o \
+          $(OBJDIR)/User.o \
+          $(OBJDIR)/UserManager.o \
+          $(OBJDIR)/Rating.o \
+          $(OBJDIR)/RatingManager.o \
+          $(OBJDIR)/Recommender.o \
+          $(OBJDIR)/SimilarityCalculator.o
 
 TARGET = movie_app
 

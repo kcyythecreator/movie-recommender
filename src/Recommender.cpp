@@ -1,4 +1,5 @@
 #include "Recommender.h"
+#include "SimilarityCalculator.h"
 #include <cstdlib> //std::abs (절댓값 계산)
 #include <algorithm> 
 #include <set> // 중복 없는 탐색
@@ -49,7 +50,7 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
         if (otherId == targetUserId) continue; 
 
         std::vector<Rating> otherRatings = ratingManager.findByUser(otherId);
-        int sim = Similaritycalculate(myRatings, otherRatings);
+        int sim = SimilarityCalculator::calculate(myRatings, otherRatings);
         if (sim != -100) {
             similarities.push_back({otherId, sim}); 
         }
