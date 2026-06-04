@@ -1,17 +1,33 @@
 #include "Recommender.h"
 #include "SimilarityCalculator.h"
-#include <cstdlib> //std::abs (절댓값 계산)
+#include <cstdlib>
 #include <algorithm> 
-#include <set> // 중복 없는 탐색
-#include <map> // (키-값 쌍 점수 누적)
+#include <set>
+#include <map>
 #include <iostream>
+#include <chrono>
+#include <string>
+
+class Timer {
+    std::chrono::high_resolution_clock::time_point start;
+    std::string label;
+public:
+    Timer(const std::string& l) : label(l) {
+        start = std::chrono::high_resolution_clock::now();
+    }
+    ~Timer() {
+        auto end = std::chrono::high_resolution_clock::now();
+        auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "[" << label << "] " << us.count() << " us\n";
+    }
+};
 
 Recommender::Recommender(MovieManager& mm, RatingManager& rm, UserManager& um)
     : movieManager(mm), ratingManager(rm), userManager(um) {}
 
 int Recommender::Similaritycalculate(const std::vector<Rating>& ratingsA, const std::vector<Rating>& ratingsB) {
-    int commonCount = 0; // 겹치는 영화 개수
-    int scoreDiffSum = 0; // 평점 차이의 합
+    int commonCount = 0;
+    int scoreDiffSum = 0;
 
     for (const auto& rA : ratingsA) { 
         for (const auto& rB : ratingsB) {
@@ -29,6 +45,8 @@ int Recommender::Similaritycalculate(const std::vector<Rating>& ratingsA, const 
 }
 
 std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K, int N) {
+    Timer t("recommend");
+
     std::vector<std::pair<int, int>> recommendations;
     std::vector<Rating> myRatings = ratingManager.findByUser(targetUserId);
 
@@ -41,11 +59,9 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
         myMovieIds.insert(r.getMovieId()); 
     }
 
-
     std::vector<std::pair<int, int>> similarities; 
     std::vector<int> allUserIds = userManager.getAllUserIds(); 
 
-    //유사도 계산
     for (int otherId : allUserIds) {
         if (otherId == targetUserId) continue; 
 
@@ -75,7 +91,6 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
          for (const auto& r : simUserRatings) { 
             if (myMovieIds.find(r.getMovieId()) == myMovieIds.end()) {
                 movieScores[r.getMovieId()] += r.getScore();
-                
             }
         }
     }
@@ -85,6 +100,7 @@ std::vector<std::pair<int, int>> Recommender::recommend(int targetUserId, int K,
         [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
             return a.second > b.second;
         });
+        
     int limitN = std::min(N, (int)sortedScores.size());
     if (limitN == 0) {
         return recommendations; 
