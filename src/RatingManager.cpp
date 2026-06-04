@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>   
 #include <sstream>   
+#include <stdexcept>
 
 void RatingManager::addRating(const Rating& r) {
     ratings.push_back(r);
@@ -30,7 +31,6 @@ std::vector<Rating> RatingManager::findByUser(int userId) const {
     return result;
 }
 
-
 void RatingManager::loadFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -45,23 +45,27 @@ void RatingManager::loadFromFile(const std::string& filename) {
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
-        std::stringstream ss(line);
-        std::string token;
+        try {
+            std::stringstream ss(line);
+            std::string token;
 
-        std::getline(ss, token, ',');
-        int userId = std::stoi(token);
+            std::getline(ss, token, ',');
+            int userId = std::stoi(token);
 
-        std::getline(ss, token, ',');
-        int movieId = std::stoi(token);
+            std::getline(ss, token, ',');
+            int movieId = std::stoi(token);
 
-        std::getline(ss, token, ',');
-        double score = std::stod(token);
+            std::getline(ss, token, ',');
+            double score = std::stod(token);
 
-        ratings.push_back(Rating(userId, movieId, score));
+            ratings.push_back(Rating(userId, movieId, score));
+        } catch (const std::exception& e) {
+            std::cerr << "데이터 파싱 오류 (해당 줄 건너뜀): " << e.what() << std::endl;
+            continue;
+        }
     }
     file.close();
 }
-
 
 void RatingManager::saveToFile(const std::string& filename) const {
     std::ofstream file(filename);

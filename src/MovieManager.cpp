@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 void MovieManager::addMovie(const Movie& movie) {
     movies.push_back(movie);
@@ -56,25 +57,30 @@ void MovieManager::loadFromFile(const std::string& filename) {
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
-        std::stringstream ss(line);
-        std::string token;
+        try {
+            std::stringstream ss(line);
+            std::string token;
 
-        std::getline(ss, token, ',');
-        int id = std::stoi(token);
+            std::getline(ss, token, ',');
+            int id = std::stoi(token);
 
-        std::getline(ss, token, ',');
-        std::string title = token;
+            std::getline(ss, token, ',');
+            std::string title = token;
 
-        std::getline(ss, token, ',');
-        std::string genre = token;
+            std::getline(ss, token, ',');
+            std::string genre = token;
 
-        std::getline(ss, token, ',');
-        int year = std::stoi(token);
+            std::getline(ss, token, ',');
+            int year = std::stoi(token);
 
-        std::getline(ss, token, ',');
-        double rating = std::stod(token);
+            std::getline(ss, token, ',');
+            double rating = std::stod(token);
 
-        movies.push_back(Movie(id, title, genre, year, rating));
+            movies.push_back(Movie(id, title, genre, year, rating));
+        } catch (const std::exception& e) {
+            std::cerr << "데이터 파싱 오류 (해당 줄 건너뜀): " << e.what() << std::endl;
+            continue;
+        }
     }
     file.close();
 }

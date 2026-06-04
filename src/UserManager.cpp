@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 void UserManager::addUser(const User& u) {
     users.push_back(u);
@@ -36,19 +37,24 @@ void UserManager::loadFromFile(const std::string& filename) {
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
-        std::stringstream ss(line);
-        std::string token;
+        try {
+            std::stringstream ss(line);
+            std::string token;
 
-        std::getline(ss, token, ',');
-        int id = std::stoi(token);
+            std::getline(ss, token, ',');
+            int id = std::stoi(token);
 
-        std::getline(ss, token, ',');
-        std::string name = token;
+            std::getline(ss, token, ',');
+            std::string name = token;
 
-        std::getline(ss, token, ',');
-        std::string email = token;
+            std::getline(ss, token, ',');
+            std::string email = token;
 
-        users.push_back(User(id, name, email));
+            users.push_back(User(id, name, email));
+        } catch (const std::exception& e) {
+            std::cerr << "데이터 파싱 오류 (해당 줄 건너뜀): " << e.what() << std::endl;
+            continue;
+        }
     }
     file.close();
 }
