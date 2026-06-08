@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+// BaseManager를 상속받아 특정 데이터 관리만 전담
 class MovieManager : public BaseManager {
 private:
     std::vector<Movie> movies;

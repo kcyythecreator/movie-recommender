@@ -9,6 +9,7 @@
 #include <string>
 #include <iterator>
 
+// RAII 패턴: 타이머 객체의 수명 주기(생성자~소멸자)를 활용해 개발자가 수동으로 시간을 재지 않아도 종료 시 자동 측정
 class Timer {
     std::chrono::high_resolution_clock::time_point start;
     std::string label;

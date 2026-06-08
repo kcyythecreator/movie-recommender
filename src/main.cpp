@@ -36,6 +36,7 @@ void showMenu() {
     cout << "선택 > ";
 }
 
+// Manager 객체들을 메인 stack에 할당하여 프로그램 종료 시 메모리가 자동 회수되도록 설계
 int main() {
     MovieManager movieMgr;
     UserManager userMgr;
@@ -80,7 +81,11 @@ int main() {
                 break;
             }
             case 3: movieMgr.displayAll(); break;
-            case 4: movieMgr.sortByRating(); break;
+            case 4: {
+                movieMgr.sortByRating();
+                movieMgr.displayAll();
+                break;
+            }
             case 5: {
                 int id; string name, email;
                 cout << "학번: "; cin >> id;
@@ -113,6 +118,7 @@ int main() {
                 cin.ignore(256, '\n');
                 
                 cout << "원하는 장르가 있습니까? (없으면 그냥 엔터, 있으면 입력 ex: Action): ";
+                // 빈 문자열(엔터) 입력 시 전체 검색으로 자연스럽게 넘어가도록 처리
                 string genreInput;
                 getline(cin, genreInput);
 

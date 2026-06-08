@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 
+// 데이터 보호를 위해 멤버 변수를 private으로 캡슐화하고, 외부 조작은 getter/setter로만 허용
 class Movie {
 private:
     int id;

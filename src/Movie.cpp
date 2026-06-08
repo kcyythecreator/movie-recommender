@@ -1,5 +1,6 @@
 #include "Movie.h"
 
+// 최적화: 생성자 내부에서 대입하지 않고 초기화 리스트를 사용하여 객체 생성 
 Movie::Movie(int id, const std::string& title, const std::string& genre, int year, double rating)
     : id(id), title(title), genre(genre), year(year), rating(rating) {}
 

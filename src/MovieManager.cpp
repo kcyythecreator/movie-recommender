@@ -29,6 +29,7 @@ void MovieManager::searchByTitle(const std::string& title) const {
 }
 
 void MovieManager::sortByRating() {
+    // 최적화: STL std::sort (O(N log N))를 활용
     std::sort(movies.begin(), movies.end()); 
     std::cout << "\n평점순으로 정렬되었습니다." << std::endl;
 }
@@ -66,7 +67,7 @@ void MovieManager::loadFromFile(const std::string& filename) {
 
     while (std::getline(file, line)) {
         if (line.empty()) continue;
-
+        //불량 CSV 데이터로 인한 타입 변환(stoi, stod) 에러 시 프로그램이 다운되지 않도록 예외처리
         try {
             std::stringstream ss(line);
             std::string token;
